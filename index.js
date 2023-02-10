@@ -2,7 +2,7 @@
 const { App } = require("@slack/bolt");
 
 const app = new App({
-    token: "xoxb-4809256745328-4771527023447-RmUbu43SCCI7hWFpfm3fBpdD",
+    token: "xoxb-4809256745328-4771527023447-vxD3PzIIa4RxbdnswHqBB7Wq",
     signingSecret: "e2b4ae6957d5ae66bc085544bae05bd5"
   });
 
@@ -19,17 +19,39 @@ async function findConversation(name) {
           // Print result
           console.log("Found conversation ID: " + conversationId);
           // Break from for loop
+            await fetchMessage(conversationId);
           break;
         }
       }
-
-    console.log("teste");
-
     }
     catch (error) {
       console.error(error);
     }
   }
-  
+
+// Fetch conversation history using the ID and a TS from the last example
+async function fetchMessage(id, ts) {
+    try {
+        const result = await app.client.conversations.history({
+            channel: id
+          });
+        
+          conversationHistory = result.messages
+            .filter(message => message.subtype != "channel_join")
+            .map(message => ({
+                user: message.user,
+                text: message.text,
+                timestamp: message.ts
+            }))
+
+        // Print results
+        console.log(conversationHistory.length + " messages found in " + id);
+        console.log(conversationHistory);
+    }
+    catch (error) {
+        console.error(error);
+    }
+}
   // Find conversation with a specified channel `name`
   findConversation("general");
+  //fetchMessage("C04P3DFG04T")
