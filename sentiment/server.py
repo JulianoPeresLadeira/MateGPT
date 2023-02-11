@@ -1,5 +1,7 @@
-from flask import Flask
 from sentiment import Sentiment
+from flask import Flask, request
+import json
+
 app = Flask(__name__)
 
 s = Sentiment(1000)
@@ -7,14 +9,14 @@ s = Sentiment(1000)
 s.analyse("chupame la 3=====D")
 
 
-"""
+@app.route('/', methods=['POST'])
+def get_text_data():
+    data = request.get_json()
+    text = data['text']
 
-@app.route("/")
-def home(): 
-    return("Hey there! Im a bot")
 
+    # return the values
+    return json.dumps(s.analyse(text))
 
-@app.route('/sentiment'  , methods = ['POST', 'DELETE'])
-def sentiment():
-    s.analyse()
-"""
+if __name__ == '__main__':
+    app.run()
