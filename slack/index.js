@@ -27,7 +27,9 @@ async function main() {
 
     for (message of channelMessages) {
         const sentiment = await getSentiment(message.text);
-        message.user = users.get(message.user).realName;
+        if (users.get(message.user)) {
+            message.user = users.get(message.user).realName;
+        }
         message.sentiment = sentiment;
     }
 
