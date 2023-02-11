@@ -2,8 +2,8 @@
 const { App } = require("@slack/bolt");
 
 const app = new App({
-    token: "xoxb-4809256745328-4771527023447-t2FCdGChAigO8SU6Cp7H8Umr",
-    signingSecret: "e2b4ae6957d5ae66bc085544bae05bd5"
+    token: process.env.SLACK_BOT_TOKEN,
+    signingSecret: process.env.SLACK_SIGNING_SECRET
 });
 
 async function main() {
