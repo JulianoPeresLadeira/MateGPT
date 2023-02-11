@@ -36,13 +36,13 @@ async function findAllPublicChannels() {
 }
 
 async function getMessagesFromChannels(channelIds) {
-    const params = []
+    const params = [];
     for (channelId of channelIds) {
-        const messages = await getMessagesFromChannel(channelId)
-        const param = { channelId, messages }
-        params.push(param)
-        console.log(param)
+        const messages = await getMessagesFromChannel(channelId);
+        const param = { channelId, messages };
+        params.push(param);
     }
+    console.log(params);
     return params;
 }
 
@@ -53,7 +53,7 @@ async function getMessagesFromChannel(channelId) {
             user: message.user,
             text: message.text,
             timestamp: message.ts
-        }))
+        }));
 }
 
 async function recurseOverChannelHistory(channelId, state = { result: [] }) {
