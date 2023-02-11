@@ -1,2 +1,4 @@
 /slack/.env
+/sentiment/__pycache__
 /slack/node_modules
+
