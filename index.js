@@ -2,7 +2,7 @@
 const { App } = require("@slack/bolt");
 
 const app = new App({
-    token: "",
+    token: "xoxb-4809256745328-4771527023447-t2FCdGChAigO8SU6Cp7H8Umr",
     signingSecret: "e2b4ae6957d5ae66bc085544bae05bd5"
 });
 
@@ -39,13 +39,10 @@ async function findAllPublicChannels() {
 async function getMessagesFromChannels(channelIds) {
     return channelIds
         .map(id => getMessagesFromChannel(id))
-        .map(printAndReturn)
-
 }
 
 async function getMessagesFromChannel(channelId) {
-    console.log((await recurseOverChannelHistory(channelId)));
-    conversationHistory = (await recurseOverChannelHistory(channelId)).messages
+    conversationHistory = (await recurseOverChannelHistory(channelId))
         .filter(message => message.subtype != "channel_join")
         .map(message => ({
             user: message.user,
@@ -72,9 +69,5 @@ function printAndReturn(obj) {
     console.log(obj)
     return obj;
 }
-// Find conversation with a specified channel `name`
-//findConversation("general");
-//fetchMessage("C04P3DFG04T");
-//findAllConversations();
-//enterAllPublicChannels();
+
 main();
