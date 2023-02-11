@@ -1,10 +1,15 @@
 require('dotenv').config()
 const { App } = require("@slack/bolt");
 
-const app = new App({
-    token: process.env.SLACK_BOT_TOKEN,
-    signingSecret: process.env.SLACK_SIGNING_SECRET
-});
+const token = process.env.SLACK_BOT_TOKEN;
+const signingSecret = process.env.SLACK_SIGNING_SECRET;
+
+if (!token || !signingSecret) {
+    console.error (`Token or signingSecret not set in process.env`)
+    return -1;
+}
+
+const app = new App({ token, signingSecret});
 
 async function main() {
     publicChannelIds = (await findAllPublicChannels()).map(a => a.id);
