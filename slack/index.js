@@ -7,10 +7,9 @@ const app = new App({
 });
 
 async function main() {
-    publicChannelIds = (await findAllPublicChannels())
-        .map(a => a.id);
+    publicChannelIds = (await findAllPublicChannels()).map(a => a.id);
     await enterChannels(publicChannelIds);
-    await getMessagesFromChannels(publicChannelIds);
+    return await getMessagesFromChannels(publicChannelIds);
 }
 
 async function enterChannels(channelIds) {
