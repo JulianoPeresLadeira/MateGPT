@@ -1,4 +1,5 @@
 require('dotenv').config()
+const axios = require('axios');
 const { App } = require("@slack/bolt");
 
 const token = process.env.SLACK_BOT_TOKEN;
@@ -9,19 +10,33 @@ if (!token || !signingSecret) {
     return -1;
 }
 
-const app = new App({ token, signingSecret});
+const app = new App({ token: token, signingSecret: signingSecret});
 
 async function main() {
     const publicChannels = await findAllPublicChannels();
     const publicChannelIds = publicChannels.map(a => a.id);
-    const users = await getUsers()
+    const users = await getUsers();
     await enterChannels(publicChannelIds);
     const channelMessages = await getMessagesFromChannels(publicChannelIds);
-    return {
+    // console.log(users)
+    
+    /*return {
         users: users,
         channelMessages: channelMessages
-    };
+    };*/
+
+    for (message of channelMessages) {
+        const sentiment = await getSentiment(message.text);
+        message.user = users.get(message.user).realName;
+        message.sentiment = sentiment;
+    }
+
+    console.log(channelMessages)
 }
+
+///////////////////////////
+//      SLACK STUFF      //
+///////////////////////////
 
 async function getUsers() {
     const usersMap = new Map();
@@ -98,6 +113,21 @@ async function recurseOverChannelHistory(channelId, state = { result: [] }) {
 function printAndReturn(obj) {
     console.debug(obj)
     return obj;
+}
+
+///////////////////////////
+//      AXIOS STUFF      //
+///////////////////////////
+
+async function getSentiment(message) {
+    const response = await axios({
+        method: 'POST',
+        url: 'http://localhost:5000/',
+        data: {
+            text: message
+        }
+    })
+    return response.data
 }
 
 main();
