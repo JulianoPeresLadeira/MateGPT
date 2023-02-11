@@ -1,2 +1,2 @@
-/node_modules
 /slack/.env
+/slack/node_modules
