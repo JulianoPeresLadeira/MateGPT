@@ -1,4 +1,4 @@
-// Require the Bolt package (github.com/slackapi/bolt)
+require('dotenv').config()
 const { App } = require("@slack/bolt");
 
 const app = new App({
@@ -7,10 +7,9 @@ const app = new App({
 });
 
 async function main() {
-    publicChannelIds = (await findAllPublicChannels())
-        .map(a => a.id);
+    publicChannelIds = (await findAllPublicChannels()).map(a => a.id);
     await enterChannels(publicChannelIds);
-    await getMessagesFromChannels(publicChannelIds);
+    return await getMessagesFromChannels(publicChannelIds);
 }
 
 async function enterChannels(channelIds) {
@@ -37,19 +36,24 @@ async function findAllPublicChannels() {
 }
 
 async function getMessagesFromChannels(channelIds) {
-    return channelIds
-        .map(id => getMessagesFromChannel(id))
+    const params = [];
+    for (channelId of channelIds) {
+        const messages = await getMessagesFromChannel(channelId);
+        const param = { channelId, messages };
+        params.push(param);
+    }
+    console.log(params);
+    return params;
 }
 
 async function getMessagesFromChannel(channelId) {
-    conversationHistory = (await recurseOverChannelHistory(channelId))
+    return (await recurseOverChannelHistory(channelId))
         .filter(message => message.subtype != "channel_join")
         .map(message => ({
             user: message.user,
             text: message.text,
             timestamp: message.ts
-        }))
-    console.log(conversationHistory);
+        }));
 }
 
 async function recurseOverChannelHistory(channelId, state = { result: [] }) {
@@ -60,7 +64,7 @@ async function recurseOverChannelHistory(channelId, state = { result: [] }) {
     state.result = state.result.concat(response.messages);
     state.lastMessageTimestamp = state.result[state.result.length - 1].ts;
     if (response.has_more) {
-        return recurseOverChannelHistory(channelId, state);
+        return await recurseOverChannelHistory(channelId, state);
     }
     return state.result.reverse();
 }

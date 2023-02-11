@@ -1,4 +1,4 @@
-/node_modules
 /slack/.env
 /sentiment/__pycache__
+/slack/node_modules
 
