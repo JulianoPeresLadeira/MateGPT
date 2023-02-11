@@ -50,6 +50,7 @@ async function findAllPublicChannels() {
     console.log("Getting all public conversations...");
     return (await app.client.conversations.list()).channels
         .filter(channel => channel.is_private == false)
+        .filter(channel => channel.is_archived == false)
         .map(channel => ({
             "name": channel.name,
             "id": channel.id
@@ -74,15 +75,18 @@ async function getMessagesFromChannel(channelId) {
             text: message.text,
             timestamp: message.ts,
             channelId
-        }))
-        .map(printAndReturn);
-}
+        }));
+    }
 
 async function recurseOverChannelHistory(channelId, state = { result: [] }) {
+    const apiCallOptions = {
+		channel: channelId,
+		count: 100
+	};
     if (state.lastMessageTimestamp) {
         apiCallOptions.latest = state.lastMessageTimestamp;
     }
-    const response = await app.client.conversations.history({ channel: channelId });
+    const response = await app.client.conversations.history(apiCallOptions);
     state.result = state.result.concat(response.messages);
     state.lastMessageTimestamp = state.result[state.result.length - 1].ts;
     if (response.has_more) {
