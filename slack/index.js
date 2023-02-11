@@ -7,9 +7,26 @@ const app = new App({
 });
 
 async function main() {
-    publicChannelIds = (await findAllPublicChannels()).map(a => a.id);
+    const publicChannels = await findAllPublicChannels();
+    const publicChannelIds = publicChannels.map(a => a.id);
+    const users = await getUsers()
     await enterChannels(publicChannelIds);
-    return await getMessagesFromChannels(publicChannelIds);
+    const channelMessages = await getMessagesFromChannels(publicChannelIds);
+    return {
+        users: users,
+        channelMessages: channelMessages
+    };
+}
+
+async function getUsers() {
+    const usersMap = new Map();
+    const users = (await app.client.users.list()).members
+        .filter(member => !member.is_bot && member.id !== "USLACKBOT")
+        .map(member => (usersMap.set(member.id, {
+            name: member.name,
+            realName: member.real_name
+        })));
+        return usersMap;
 }
 
 async function enterChannels(channelIds) {
@@ -36,14 +53,12 @@ async function findAllPublicChannels() {
 }
 
 async function getMessagesFromChannels(channelIds) {
-    const params = [];
+    const messages = [];
     for (channelId of channelIds) {
-        const messages = await getMessagesFromChannel(channelId);
-        const param = { channelId, messages };
-        params.push(param);
+        const messagesInChannel = await getMessagesFromChannel(channelId);
+        messages.push(messagesInChannel);
     }
-    console.log(params);
-    return params;
+    return messages.flatMap(arr => arr);
 }
 
 async function getMessagesFromChannel(channelId) {
@@ -52,8 +67,10 @@ async function getMessagesFromChannel(channelId) {
         .map(message => ({
             user: message.user,
             text: message.text,
-            timestamp: message.ts
-        }));
+            timestamp: message.ts,
+            channelId
+        }))
+        .map(printAndReturn);
 }
 
 async function recurseOverChannelHistory(channelId, state = { result: [] }) {
@@ -70,7 +87,7 @@ async function recurseOverChannelHistory(channelId, state = { result: [] }) {
 }
 
 function printAndReturn(obj) {
-    console.log(obj)
+    console.debug(obj)
     return obj;
 }
 
